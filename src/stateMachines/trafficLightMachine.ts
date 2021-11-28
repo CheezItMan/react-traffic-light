@@ -16,7 +16,23 @@ const DEFAULT_CONTEXT: TrafficLightContext = {
 };
 
 type TrafficLightEvent = {
-  type: 'CHANGE';
+  type: 'CHANGE' | 'BROKE';
+};
+
+const ACTIONS = {
+  assignNextColor: () =>
+    assign<TrafficLightContext, TrafficLightEvent>((ctx) => {
+      switch (ctx.nextColor) {
+        case 'red':
+          return { nextColor: 'green' };
+        case 'green':
+          return { nextColor: 'yellow' };
+        case 'yellow':
+          return { nextColor: 'red' };
+        default:
+          return { nextColor: 'broken' };
+      }
+    }),
 };
 
 export const trafficLightMachine = createMachine<
