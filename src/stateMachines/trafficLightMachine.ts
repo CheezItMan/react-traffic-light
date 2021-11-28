@@ -1,4 +1,4 @@
-import { createMachine, assign, EventObject } from 'xstate';
+import { createMachine, assign } from 'xstate';
 
 type TrafficLightContext = {
   nextColor: string;
