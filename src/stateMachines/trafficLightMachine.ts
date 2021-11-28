@@ -37,38 +37,50 @@ const ACTIONS = {
 
 export const trafficLightMachine = createMachine<
   TrafficLightContext,
-  TrafficLightSchema,
-  TrafficLightEvent
->({
-  id: 'trafficLight',
-  initial: 'red',
-  context: {
-    currentColor: 'red',
-    nextColor: 'green',
-  },
-  states: {
-    red: {
-      on: {
-        CHANGE: {
-          target: 'green',
+  TrafficLightEvent,
+  TrafficLightTypeState
+>(
+  {
+    id: 'trafficLight',
+    strict: true,
+    initial: 'red',
+    context: DEFAULT_CONTEXT,
+    states: {
+      red: {
+        on: {
+          CHANGE: {
+            target: 'green',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
         },
-        BROKE: { target: 'broken' },
       },
-    },
-    green: {
-      on: {
-        CHANGE: { target: 'yellow' },
-        BROKE: { target: 'broken' },
+      green: {
+        on: {
+          CHANGE: {
+            target: 'yellow',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
+        },
       },
-    },
-    yellow: {
-      on: {
-        CHANGE: { target: 'red' },
-        BROKE: { target: 'broken' },
+      yellow: {
+        on: {
+          CHANGE: {
+            target: 'red',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
+        },
       },
-    },
-    broken: {
-      type: 'final',
+      broken: {
+        type: 'final',
+      },
     },
   },
-});
+  {
+    actions: {
+      assignNextColor: ACTIONS.assignNextColor,
+    },
+  },
+);
