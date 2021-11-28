@@ -27,7 +27,6 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      {/* <button onClick={() => send('Toggle')}>{current.matches('green') ? 'yellow' : ''}{current.matches('yellow') ? 'red' : ''}{current.matches('red') ? 'green': 'yellow'}</button> */}
       <div>
         <TrafficLight
           redOn={current.value === 'red'}
