@@ -1,32 +1,19 @@
 import { createMachine, assign, EventObject } from 'xstate';
 
 type TrafficLightContext = {
-  currentColor: 'green' | 'yellow' | 'red' | '';
-  nextColor: 'green' | 'yellow' | 'red' | '';
+  nextColor: string;
 };
 
-type TrafficLightSchema = {
-  states: {
-    green: Record<string, unknown>;
-    yellow: Record<string, unknown>;
-    red: Record<string, unknown>;
-    broken: Record<string, unknown>;
-  };
+type TrafficLightStates = 'red' | 'yellow' | 'green' | 'broken';
+
+type TrafficLightTypeState = {
+  value: TrafficLightStates;
+  context: TrafficLightContext;
 };
 
-const changeContext = assign<TrafficLightContext>({
-  currentColor: (context) => {
-    return {
-      currentColor: context.nextColor,
-      nextColor:
-        context.nextColor === 'green'
-          ? 'yellow'
-          : context.nextColor === 'yellow'
-          ? 'red'
-          : 'green',
-    };
-  },
-});
+const DEFAULT_CONTEXT: TrafficLightContext = {
+  nextColor: 'green',
+};
 
 type TrafficLightEvent = {
   type: 'CHANGE';
