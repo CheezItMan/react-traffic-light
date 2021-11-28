@@ -1,71 +1,86 @@
 import { createMachine, assign, EventObject } from 'xstate';
 
 type TrafficLightContext = {
-  currentColor: 'green' | 'yellow' | 'red' | '';
-  nextColor: 'green' | 'yellow' | 'red' | '';
+  nextColor: string;
 };
 
-type TrafficLightSchema = {
-  states: {
-    green: Record<string, unknown>;
-    yellow: Record<string, unknown>;
-    red: Record<string, unknown>;
-    broken: Record<string, unknown>;
-  };
+type TrafficLightStates = 'red' | 'yellow' | 'green' | 'broken';
+
+type TrafficLightTypeState = {
+  value: TrafficLightStates;
+  context: TrafficLightContext;
 };
 
-const changeContext = assign<TrafficLightContext>({
-  currentColor: (context) => {
-    return {
-      currentColor: context.nextColor,
-      nextColor:
-        context.nextColor === 'green'
-          ? 'yellow'
-          : context.nextColor === 'yellow'
-          ? 'red'
-          : 'green',
-    };
-  },
-});
+const DEFAULT_CONTEXT: TrafficLightContext = {
+  nextColor: 'green',
+};
 
 type TrafficLightEvent = {
-  type: 'CHANGE';
+  type: 'CHANGE' | 'BROKE';
+};
+
+const ACTIONS = {
+  assignNextColor: () =>
+    assign<TrafficLightContext, TrafficLightEvent>((ctx) => {
+      switch (ctx.nextColor) {
+        case 'red':
+          return { nextColor: 'green' };
+        case 'green':
+          return { nextColor: 'yellow' };
+        case 'yellow':
+          return { nextColor: 'red' };
+        default:
+          return { nextColor: 'broken' };
+      }
+    }),
 };
 
 export const trafficLightMachine = createMachine<
   TrafficLightContext,
-  TrafficLightSchema,
-  TrafficLightEvent
->({
-  id: 'trafficLight',
-  initial: 'red',
-  context: {
-    currentColor: 'red',
-    nextColor: 'green',
-  },
-  states: {
-    red: {
-      on: {
-        CHANGE: {
-          target: 'green',
+  TrafficLightEvent,
+  TrafficLightTypeState
+>(
+  {
+    id: 'trafficLight',
+    strict: true,
+    initial: 'red',
+    context: DEFAULT_CONTEXT,
+    states: {
+      red: {
+        on: {
+          CHANGE: {
+            target: 'green',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
         },
-        BROKE: { target: 'broken' },
       },
-    },
-    green: {
-      on: {
-        CHANGE: { target: 'yellow' },
-        BROKE: { target: 'broken' },
+      green: {
+        on: {
+          CHANGE: {
+            target: 'yellow',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
+        },
       },
-    },
-    yellow: {
-      on: {
-        CHANGE: { target: 'red' },
-        BROKE: { target: 'broken' },
+      yellow: {
+        on: {
+          CHANGE: {
+            target: 'red',
+            actions: ['assignNextColor'],
+          },
+          BROKE: { target: 'broken' },
+        },
       },
-    },
-    broken: {
-      type: 'final',
+      broken: {
+        type: 'final',
+      },
     },
   },
-});
+  {
+    actions: {
+      assignNextColor: ACTIONS.assignNextColor,
+    },
+  },
+);
