@@ -26,6 +26,8 @@
   "plugins": ["react", "@typescript-eslint", "jest", "import"],
   "root": true,
   "rules": {
+    "indent": "off",
+    "@typescript-eslint/indent": ["off"],
     "react/react-in-jsx-scope": "off",
     "max-len": [1, 120, 2, { "ignoreComments": true }],
     "no-console": "off",
